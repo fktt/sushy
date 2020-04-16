@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import copy
 import logging
 from urllib import parse as urlparse
 
@@ -89,13 +90,14 @@ class Connector(object):
         headers = headers or {}
         if not any(k.lower() == 'odata-version' for k in headers):
             headers['OData-Version'] = '4.0'
-        # TODO(lucasagomes): We should mask the data to remove sensitive
-        # information
+
+        data_copy = copy.deepcopy(data)
+        data_copy['Password'] = '*****'
         LOG.debug('HTTP request: %(method)s %(url)s; headers: %(headers)s; '
                   'body: %(data)s; blocking: %(blocking)s; timeout: '
                   '%(timeout)s; session arguments: %(session)s;',
                   {'method': method, 'url': url, 'headers': headers,
-                   'data': data, 'blocking': blocking, 'timeout': timeout,
+                   'data': data_copy, 'blocking': blocking, 'timeout': timeout,
                    'session': extra_session_req_kwargs})
         try:
             response = self._session.request(method, url, json=data,
